@@ -2,26 +2,28 @@
 
 // set up ======================================================================
 // get all the tools we need
-var express  = require('express');
-var app      = express();
-var port     = process.env.PORT || 8080;
+require('dotenv').config() 
+const express  = require('express');
+const app      = express();
+const port     = process.env.PORT || 8088;
 const MongoClient = require('mongodb').MongoClient
-var mongoose = require('mongoose');
-var passport = require('passport');
-var flash    = require('connect-flash');
+const  mongoose = require('mongoose');
+const passport = require('passport');
+const flash    = require('connect-flash');
 
-var morgan       = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser   = require('body-parser');
-var session      = require('express-session');
+const morgan       = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser   = require('body-parser');
+const session      = require('express-session');
 
-var configDB = require('./config/database.js');
+const configDB = require('./config/database.js');
 
-var db
+let db
 
 // configuration ===============================================================
 mongoose.connect(configDB.url, (err, database) => {
-  if (err) return console.log(err)
+  if (err) return console.log('DB connection failed:', err.message)
+  console.log('DB connected, loading routes')
   db = database
   require('./app/routes.js')(app, passport, db);
 }); // connect to our database
@@ -40,7 +42,7 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 
 // required for passport
 app.use(session({
-    secret: 'rcbootcamp2021b', // session secret
+    secret: process.env.SESSION_SECRET, // session secret
     resave: true,
     saveUninitialized: true
 }));

@@ -1,66 +1,74 @@
 <!doctype html>
 <html>
 <head>
-    <title>21 Savage Fan Site</title>
+    <title>My Jobs</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div class="container">
-
-    <div class="page-header text-center">
-        <h1><span class="fa fa-anchor"></span> Profile Page</h1>
+<body> 
+ <header class="site-header">
+        <h1><span class="fa fa-wrench"></span> My Jobs</h1>
         <a href="/logout" class="btn btn-default btn-sm">Logout</a>
-    </div>
+    </header>
 
-    <div class="row">
+    <div class="container">
 
-        <!-- LOCAL INFORMATION -->
-        <div class="col-sm-6">
-            <div class="well">
-                <h3><span class="fa fa-user"></span> Local</h3>
+    
+    <h2>Search for Jobs</h2>
+          <form action="/profile" method="Get">
+            <input type="text" name="q"  placeholder="search Customer or Job title" value="<%= q %>">
+            <select name = 'status'> 
+            
+                <option  value = "" <%= status === '' ? 'selected': '' %>> ALL </option>
+                 <option  value = "active" <%= status === 'active' ? 'selected': '' %>> Active </option>
+                  <option  value = "done" <%= status === 'done' ? 'selected': '' %>> Done </option>
+            </select>
+            <button type="submit">Submit</button>
+          </form>
+        
+    
 
-                <% if (user.local.email) { %>
-                    <p>
-                        <strong>id</strong>: <%= user._id %><br>
-                        <strong>email</strong>: <%= user.local.email %><br>
-                        <strong>password</strong>: <%= user.local.password %>
-                    </p>
+           <div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+    <h2>Add New Job</h2>
+          <form action="/jobs" method="POST">
+            <input type="text" name="customer"  placeholder="Customer" required> 
+            <input type="text" name = 'title' placeholder=" Job title" required> 
+            <textarea placeholder="Description" name="description" rows="2"></textarea>
+            <input type="number" name="quoteAmount"  placeholder="Quote Amount" > 
+            <textarea  name ='items' placeholder="one checklist item per line " rows ="4"></textarea>
+            <label><input type = 'checkbox' name = 'urgent'>Urgent</label>
+            <button type="submit">Submit</button>
+          </form>
+       
+       
+          <h3> Jobs</h3>
+          <ul class="jobList">
+          <% for(var i=0; i<jobs.length; i++) {%>
+                <% const items = jobs[i].items || [] %>
+                <% const remaining = items.filter(item => !item.done).length %>
 
-                    <a href="/unlink/local" class="btn btn-default">Unlink</a>
-                <% } else { %>
-                    <a href="/connect/local" class="btn btn-default">Connect Local</a>
-                <% } %>
+            <li class="job" data-id="<%= jobs[i]._id %>">
+                <h4><%= jobs[i].title %>
+                   <% if(jobs[i].urgent)    {%><em> (Urgent)</em><% } %>
+                
+                </h4>
+              <p>
+                Customer <%= jobs[i].customer %> | 
+                <%= remaining %> of <%= items.length %> remaining |
+                <%= jobs[i].status %>
+              </p>
+                <a href="/jobs/<%= jobs[i]._id %>">Open</a>
+               <span><i class="fa fa-trash-o" aria-hidden="true"></i></span>
 
-            </div>
-        </div>
-        <div class="col-sm-6">
-          <h3>Messages</h3>
-          <ul class="messages">
-          <% for(var i=0; i<messages.length; i++) {%>
-            <li class="message">
-              <span><%= messages[i].name %></span>
-              <span><%= messages[i].msg %></span>
-              <span><%= messages[i].thumbUp %></span>
-              <span><i class="fa fa-thumbs-up" aria-hidden="true"></i></span>
-              <span><i class="fa fa-thumbs-down" aria-hidden="true"></i></span>
-              <span><i class="fa fa-trash" aria-hidden="true"></i></span>
             </li>
           <% } %>
           </ul>
-
-          <h2>Add a message</h2>
-        <% if (user.local.email) { %>
-          <form action="/messages" method="POST">
-            <input type="text" value="<%= user.local.email %>" name="name">
-            <input type="text" placeholder="message" name="msg">
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-        <% } %>
-
+          </div>
+    </div>
 </div>
+        
 
 <script src="main.js"></script>
 

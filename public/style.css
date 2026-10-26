@@ -1,7 +1,141 @@
 body{
-  padding-top:80px;
+  padding-top:0px;
   word-wrap:break-word;
+  margin: 0;
+  background-color: #f1f8f1;
 }
 img{
   height: 200px;
 }
+
+form input, form textarea{
+  box-sizing: border-box;
+}
+
+summary{
+  color: #428bca; 
+  text-decoration: underline;
+  cursor: pointer;
+
+}
+
+form input, form textarea{
+  width: 100%;
+  margin-bottom: 10px;
+  /* border-radius: 4px; */
+}
+
+form textarea{
+  resize: vertical;
+}
+
+.recipe-box{
+  list-style: none;
+  padding: 0;
+}
+
+.recipe{
+  BACKGROUND-COLOR: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.recipe h4{
+  margin-top: 0;
+}
+
+
+.recipe-favs{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.recipe-favs i{
+  cursor: pointer;
+}
+
+.recipe .fa-heart{
+  color: red;
+}
+
+
+
+.job-card{
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+}
+
+.job-card h2{
+  margin-top: 0;
+  font-size: 24px;
+}
+
+.job-meta{
+  color: #555;
+}
+
+.checklist{
+  list-style: none;
+  padding: 0;
+}
+
+.checklist li{
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.checklist label{
+  display: block;
+  margin: 0;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.checklist input{
+  margin-right: 8px;
+}
+
+#message{
+  color: #c9302c;
+  margin-top: 10px;
+}
+
+.done-note{
+  color: #3c763d;
+  font-weight: bold;
+}
+
+
+/* .site-header{
+  background-color: #f8f8f8;
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #e7e7e7;
+} */
+
+.site-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-bottom: 1px solid #e7e7e7;
+  margin-bottom: 24px;
+ 
+
+}
+
+.site-header h1{
+  margin: 0;
+  font-size: 24px;
+}
+

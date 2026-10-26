@@ -1,5 +1,7 @@
 module.exports = function(app, passport, db) {
 
+  const objectId = require('mongodb').ObjectId
+  const jobs = db.collection('jobs')
 // normal routes ===============================================================
 
     // show the home page (will also have our login links)
@@ -9,14 +11,50 @@ module.exports = function(app, passport, db) {
 
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function(req, res) {
-        db.collection('messages').find().toArray((err, result) => {
+       
+      const filter = {userId: req.user.id}
+
+      const  status = req.query.status
+      
+      if (status === 'active' || status === 'done') filter.status = status; 
+
+      const q =  (req.query.q || '').trim().toLowerCase();
+
+    db.collection('jobs').find(filter).sort({urgent:-1, createdAt: -1}).toArray((err, result) => {
           if (err) return console.log(err)
-          res.render('profile.ejs', {
+
+          if (q) {
+              result = result.filter( job => job.customer.toLowerCase().includes(q) || 
+              job.title.toLowerCase().includes(q)
+              )
+
+            
+          }
+
+
+            res.render('profile.ejs', {
             user : req.user,
-            messages: result
+            jobs: result, 
+            q,
+            status: status || ''
           })
         })
     });
+
+
+
+    app.get('/jobs/:id', isLoggedIn, (req, res) => {
+      console.log('Job ID:', req.params.id)
+      db.collection('jobs')
+      .findOne({_id: new objectId(req.params.id), userId: req.user.id}, 
+         {
+        sort: {_id: -1}
+       
+      }, (err, result) => {
+        if (err) return res.send(err)
+        res.render( 'job.ejs', {user: req.user, result})
+      })
+    })
 
     // LOGOUT ==============================
     app.get('/logout', function(req, res) {
@@ -28,33 +66,102 @@ module.exports = function(app, passport, db) {
 
 // message board routes ===============================================================
 
-    app.post('/messages', (req, res) => {
-      db.collection('messages').save({name: req.body.name, msg: req.body.msg, thumbUp: 0, thumbDown:0}, (err, result) => {
-        if (err) return console.log(err)
+    app.post('/jobs', isLoggedIn, (req, res) => {
+      console.log(req.body)
+      const customer = String(req.body.customer || '').trim()
+      const title = String(req.body.title || '').trim()
+      
+    if(!customer || !title) return res.status(400).send('customer and title are required')
+
+    const items = String(req.body.items ||'').split('\n').map(line => line.trim()).filter(line => line.length > 0)
+    .map(label => ({_id: new objectId(), label, done: false}))
+
+
+      db.collection('jobs').save({
+        userId: req.user.id, 
+        customer,
+        title,
+        description: String(req.body.description || '').trim(), 
+        quoteAmount: Number(req.body.quoteAmount) || 0, 
+        items,
+       
+        status: 'active', 
+        completedAt: null, 
+        createdAt: new Date(), 
+         urgent: req.body.urgent === 'on' }, (err, result) => {
+        if (err) return res.status(500).send('job is not save')
         console.log('saved to database')
         res.redirect('/profile')
       })
     })
 
-    app.put('/messages', (req, res) => {
-      db.collection('messages')
-      .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
-        $set: {
-          thumbUp:req.body.thumbUp + 1
-        }
-      }, {
-        sort: {_id: -1},
-        upsert: true
-      }, (err, result) => {
-        if (err) return res.send(err)
-        res.send(result)
+
+
+
+app.put('/jobs/:id/:items/:itemId', isLoggedIn, (req, res) => {
+      db.collection('jobs')
+      .updateOne({_id: new objectId(req.params.id), userId: req.user.id, status: 'active', 'items._id': new objectId(req.params.itemId) }, 
+       
+      
+    {  $set: {
+            'items.$.done': req.body.done === true
+        
+      } }, (err, result) => {
+        if (err) return  res.status(500).json({error: 'problem with server'})
+
+      if(result.matchedCount === 0){
+          return res.status(409).json({error: 'job is done'})
+      }
+        res.json({ok: true})
       })
     })
 
-    app.delete('/messages', (req, res) => {
-      db.collection('messages').findOneAndDelete({name: req.body.name, msg: req.body.msg}, (err, result) => {
-        if (err) return res.send(500, err)
-        res.send('Message deleted!')
+
+
+
+    app.put('/jobs/:id/complete', isLoggedIn, (req, res) => {
+      db.collection('jobs')
+      .updateOne({_id: new objectId(req.params.id), userId: req.user.id, status: 'active', 'items.0': {$exists: true}, items:{$not: {$elemMatch: {done: false}}} 
+      
+      },
+      {
+        $set: {
+            
+          status : 'done',
+            completedAt : new Date()
+        }
+      },  
+       (err, result) => {
+        if (err) return  res.status(500).json({error: 'problem with server'})
+
+      if(result.matchedCount === 0){
+          return res.status(409).json({error: 'finish all the tasks before marking job as done'})
+      }
+        res.json({ok: true})
+      })
+    })
+      
+
+
+    // app.put('/down', (req, res) => {
+    //   db.collection('messages')
+    //   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+    //     $set: {
+    //       thumbUp:req.body.thumbUp - 1
+    //     }
+    //   }, {
+    //     sort: {_id: -1},
+    //     upsert: true
+    //   }, (err, result) => {
+    //     if (err) return res.send(err)
+    //     res.send(result)
+    //   })
+    // })
+
+    app.delete('/jobs/:id', isLoggedIn, (req, res) => {
+      db.collection('jobs').findOneAndDelete({_id: new objectId(req.params.id), userId: req.user.id}, (err, result) => {
+        if (err) return res.status(500).send(err) 
+        res.send('job deleted!')
       })
     })
 

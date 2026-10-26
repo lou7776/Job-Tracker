@@ -1,6 +1,15 @@
 // config/database.js
 module.exports = {
+   
+  url: process.env.MONGO_URL
+}
 
-    'url' : 'mongodb+srv://demo:demo@cluster0.q2ojb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', 
-    'dbName': 'demo'
-};
+
+
+
+    
+    // 'dbName': 'job.organizer'
+
+
+
+

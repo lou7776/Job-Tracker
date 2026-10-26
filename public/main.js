@@ -1,22 +1,28 @@
-var thumbUp = document.getElementsByClassName("fa-thumbs-up");
-var trash = document.getElementsByClassName("fa-trash");
+const list = document.getElementById('checklist');
+const message =  document.getElementById('message');
+const trash = document.getElementsByClassName("fa-trash-o");
+const checkboxes = document.getElementsByClassName("item-box");
+const completeBtn = document.getElementById("complete-btn");
 
-Array.from(thumbUp).forEach(function(element) {
+if (list){
+
+  
+
+Array.from(checkboxes).forEach(function(element) {
       element.addEventListener('click', function(){
-        const name = this.parentNode.parentNode.childNodes[1].innerText
-        const msg = this.parentNode.parentNode.childNodes[3].innerText
-        const thumbUp = parseFloat(this.parentNode.parentNode.childNodes[5].innerText)
-        fetch('messages', {
+        const jobId = list.dataset.id;
+        fetch('/jobs/' + jobId +'/items/' + element.dataset.itemId, {
           method: 'put',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
-            'name': name,
-            'msg': msg,
-            'thumbUp':thumbUp
+            done: element.checked
           })
         })
         .then(response => {
-          if (response.ok) return response.json()
+          if (response.ok) 
+            element.checked =! element.checked
+            return response.json()
+
         })
         .then(data => {
           console.log(data)
@@ -25,21 +31,45 @@ Array.from(thumbUp).forEach(function(element) {
       });
 });
 
+}
+
+if(completeBtn){
+completeBtn.addEventListener('click', function(){
+  const jobId = list.dataset.id;
+  fetch('/jobs/' + jobId +'/complete', {
+          method: 'put'})
+
+  .then(res => res.json().then(data =>{
+    if(!res.ok){
+      message.textContent = data.error
+      return
+
+    }
+
+  window.location.reload()
+
+  }))
+
+
+})
+
+  
+
+}
+
+
+
+
 Array.from(trash).forEach(function(element) {
       element.addEventListener('click', function(){
-        const name = this.parentNode.parentNode.childNodes[1].innerText
-        const msg = this.parentNode.parentNode.childNodes[3].innerText
-        fetch('messages', {
-          method: 'delete',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            'name': name,
-            'msg': msg
-          })
-        }).then(function (response) {
+        const li = this.closest('li');
+        const id = li.dataset.id;
+        fetch('/jobs/' + id, {
+          method: 'delete'})
+          .then(function (response) {
           window.location.reload()
         })
-      });
+      })
 });
+
+

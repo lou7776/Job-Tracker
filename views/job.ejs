@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+    <title><%= result.title   %></title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/style.css">
+    </head>
+
+<body>
+
+    <header class="site-header">
+        <h1><span class="fa fa-wrench"></span> Job Details</h1>
+        <div>
+            <a href = "/profile">back to jobs  </a>
+            <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+        </div>
+    </header>
+
+
+
+    <div class="container">
+    <div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+
+        <div class="job-card">
+            <h1> <%=   result.title    %> </h1>
+            <p class ="job-meta">
+        Customer: <%= result.customer   %> |
+        Quote:  <%= result.quoteAmount  %> |
+        status: <%= result.status  %>
+    </p>
+
+    <p> <%=   result.description    %></p>
+    </div>
+    
+    <% const remaining = result.items.filter(item => !item.done).length %>
+
+    <h2><%= remaining %> of <%= result.items.length %> remaining </h2>
+
+
+<ul id ="checklist" class = "checklist" data-id = "<%= result._id%>"> 
+   <% result.items.forEach(item => { %>
+    <li>
+        <label>
+
+            <input  type = "checkbox" class ='item-box'
+                data-item-id="<%= item._id %>"
+                <%= item.done ? 'checked' : '' %>
+                <%= result.status === 'done' ? 'disabled' : ''%>>
+                <%= item.label %>
+        </label>
+    </li>
+
+  <% }) %>
+   
+
+</ul>
+
+
+<% if(result.status === 'active'){ %>
+
+    <button id= "complete-btn">Mark job complete</button>
+
+    <% }else { %>
+
+    <p> This job is Done</p>
+        <% } %>
+    
+        <p id="message"></p>
+
+    </div>
+    </div>
+    </div>
+    <script src ="/main.js"> </script>
+
+    </body>
+    </html>
+
+
+
+
