@@ -4,6 +4,7 @@ A one-day job tracker for tradespeople. When a tradesperson wins a job, they rec
 
 Built with Node, Express, EJS, Passport (local login), and MongoDB.
 
+<img width="1393" height="717" alt="Screenshot 2026-10-30 at 12 41 39 AM" src="https://github.com/user-attachments/assets/49580d50-80d9-43b4-8ac9-08e32ca9ac07" />
 
 
 ## Features
